@@ -10,7 +10,7 @@ export class CarboneProcessor {
   constructor(private readonly carboneService: CarboneService) {}
 
   @Process('transcode')
-  async handleTranscode(job: Job) {
+  async handleTranscode(job: Job): Promise<Buffer> {
     try {
       const { data, nameTemplate, convertTo } = job.data;
 

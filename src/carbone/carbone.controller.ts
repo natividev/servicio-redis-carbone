@@ -47,13 +47,14 @@ export class CarboneController {
   async downloadPDF(@Query('jobId') jobId: string, @Res() res: Response) {
     try {
       const pdfBuffer = await this.carboneService.getPdfBufferFromJob(jobId);
+
+      // Establecer los encabezados de respuesta para indicar que se está enviando un archivo PDF
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename=mi_archivo.pdf`,
-      );
+
+      // Enviar el buffer como respuesta
       res.send(pdfBuffer);
     } catch (error) {
+      // Capturar errores y devolver una respuesta de error apropiada
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
