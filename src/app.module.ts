@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { CarboneModule } from './carbone/carbone.module';
+import { CarboneController } from './carbone/carbone.controller';
+import { CarboneService } from './carbone/carbone.service';
 
 @Module({
   imports: [CarboneModule],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [CarboneController],
+  providers: [CarboneService],
 })
 export class AppModule {}

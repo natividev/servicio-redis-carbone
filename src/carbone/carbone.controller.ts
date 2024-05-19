@@ -1,42 +1,41 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
+  HttpException,
+  HttpStatus,
+  Res,
 } from '@nestjs/common';
 import { CarboneService } from './carbone.service';
-import { CreateCarboneDto } from './dto/create-carbone.dto';
-import { UpdateCarboneDto } from './dto/update-carbone.dto';
+import { Response } from 'express'; // Importa el tipo de dato Response de express
 
 @Controller('carbone')
 export class CarboneController {
   constructor(private readonly carboneService: CarboneService) {}
 
-  @Post()
-  create(@Body() createCarboneDto: CreateCarboneDto) {
-    return this.carboneService.create(createCarboneDto);
-  }
-
   @Get()
-  findAll() {
-    return this.carboneService.findAll();
-  }
+  async renderPDFCarbone(@Res() res: Response) {
+    try {
+      const payload = {
+        firstname: 'Jose',
+        lastname: 'Natividad',
+      };
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.carboneService.findOne(+id);
-  }
+      const pdfBuffer = await this.carboneService.renderPDFCarbone(
+        payload,
+        'ticket.odt',
+        'pdf',
+      );
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCarboneDto: UpdateCarboneDto) {
-    return this.carboneService.update(+id, updateCarboneDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.carboneService.remove(+id);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.send(pdfBuffer);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Error al generar PDF: ' + error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

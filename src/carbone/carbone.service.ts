@@ -1,26 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCarboneDto } from './dto/create-carbone.dto';
-import { UpdateCarboneDto } from './dto/update-carbone.dto';
-
+import { Injectable, Logger } from '@nestjs/common';
+import * as util from 'util';
+import * as carbone from 'carbone';
+import { join } from 'path';
 @Injectable()
 export class CarboneService {
-  create(createCarboneDto: CreateCarboneDto) {
-    return 'This action adds a new carbone';
-  }
+  private readonly logger = new Logger(CarboneService.name);
 
-  findAll() {
-    return `This action returns all carbone`;
-  }
+  async renderPDFCarbone<T>(
+    data: T,
+    nameTemplate,
+    convertTo: string = 'pdf',
+  ): Promise<Buffer> {
+    try {
+      const option = {
+        convertTo,
+      };
 
-  findOne(id: number) {
-    return `This action returns a #${id} carbone`;
-  }
+      const renderCarbone = util.promisify(carbone.render) as (
+        template: string,
+        data: T,
+        option: object,
+      ) => Promise<Buffer>;
 
-  update(id: number, updateCarboneDto: UpdateCarboneDto) {
-    return `This action updates a #${id} carbone`;
-  }
+      const templatePath = `src/templates/${nameTemplate}`;
 
-  remove(id: number) {
-    return `This action removes a #${id} carbone`;
+      if (!templatePath) {
+        throw new Error(
+          `La plantilla ${nameTemplate} no se encuentra en la ruta especificada.`,
+        );
+      }
+
+      return await renderCarbone(
+        join(process.cwd(), templatePath),
+        data,
+        option,
+      );
+    } catch (error) {
+      this.logger.error('Error during PDF rendering:', error);
+      throw new Error(error);
+    }
   }
 }
