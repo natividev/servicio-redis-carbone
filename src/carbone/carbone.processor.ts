@@ -19,7 +19,6 @@ export class CarboneProcessor {
         nameTemplate,
         convertTo,
       );
-      console.log('aca va el bufferfffff', bufferData);
       return bufferData;
     } catch (error) {
       throw error;
